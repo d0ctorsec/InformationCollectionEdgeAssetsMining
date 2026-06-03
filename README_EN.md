@@ -4,780 +4,1081 @@
   <a href="./README_EN.md"><img src="https://img.shields.io/badge/English-README-black?style=for-the-badge" alt="English README"></a>
 </p>
 
-# Information Gathering and Edge Asset Discovery Handbook
-
-This is the English edition of [README.md](./README.md). The original article is a 20,000-word handbook on information gathering and edge asset discovery, focused on building a practical reconnaissance workflow for finding hidden external assets.
-
-## References
-
+```markdown
+# References
 1. https://cloudsec.huoxian.cn/docs/articles/aliyun/aliyun_oss#2bucket%E6%A1%B6%E7%88%86%E7%A0%B4
 2. https://juejin.cn/post/6950954967435837454
 3. https://websec.readthedocs.io/zh/latest/info/index.html
 4. https://cloud.tencent.com/developer/article/1459303
 5. https://mp.weixin.qq.com/s/LE37OcNYWC9rFH8qeiYsmA
-
-## 0x00 Preface
-
-In a recent pre-sales project, the client required us to collect hidden assets. Traditional information gathering usually relies on many platforms and tools for cross-validation, while notes, screenshots, and utilities are scattered across different modules. That makes the workflow inefficient. I therefore reorganized the overall thought process into a single article, removed repeated or outdated methods, and turned it into a practical end-to-end workflow.
-
-The sections in this article are already ordered by priority. Methods listed earlier in each module are generally more recommended. In most cases, choosing one or two effective methods per module is enough. Unless the target is especially important, it is not necessary to use every single approach because doing so is very time-consuming.
-
-## 0x01 Root Domain and Enterprise Profiling
-
-### 1.1 Enterprise Information Lookup
-
-If the scope includes subsidiaries or parent companies, clarify the equity threshold with the client first. Then use enterprise-information platforms and equity penetration graphs to collect subsidiary names and domains. There is no perfect tool for this step, so manual review is still reliable. When the organizational structure is large, `Tscan` and `ENScan_GO` are currently good choices.
-
-#### 1. Tscan
-
-Configure the target site's cookie and API key, then input the company name to collect basic enterprise information.
-
-Download:
-
-```text
-https://github.com/TideSec/TscanPlus/releases
 ```
 
-#### 2. ENScan_GO
+# 0x00. Preface
 
-After downloading, configure the API and cookie before use. The following is a commonly used command. If errors occur, adjust it according to your environment and config file.
-
-```bash
-./enscan-v2.0.5-darwin-arm64 -n 北京金山云网络技术有限公司 -field icp,weibo,wechat,app,job,wx_app,copyright,supplier -type tyc,chinaz -timeout 30 --hold --supplier --branch
+```markdown
+During a recent pre-sales engagement, the client asked for a workflow that could surface hidden external assets. Traditional reconnaissance usually requires cross-checking across many platforms and tools, while notes, screenshots, and utilities are often scattered across different modules. That makes the process inefficient. This article consolidates those fragmented methods into a single practical workflow, removes repetitive or outdated techniques, and organizes them into an end-to-end playbook. It is based on my past notes and field experience, so feel free to point out anything that could be improved.
 ```
 
-Download:
-
-```text
-https://github.com/wgpsec/ENScan_GO
+```markdown
+`The workflow in this article is already ordered by priority. Earlier subsections are generally the more recommended options. In most modules, choosing one or two effective methods is enough. Unless the target is especially important, it is usually unnecessary to use every single technique because doing so is very time-consuming.
 ```
 
-### 1.2 Query the Root Domain via ICP Filing
+# 0x01. Root Domain and Enterprise Profiling
 
-After section `1.1` gives you the company name and part of the filing information, go directly to the Ministry of Industry and Information Technology ICP platform and search the company name. This allows you to retrieve the currently filed root domain. You need to click `Details`. This source is highly time-sensitive and is the primary data source for filing updates.
+## 1.1. Enterprise Information Lookup
 
-```text
-https://beian.miit.gov.cn/
+```markdown
+If the client wants subsidiaries or parent companies included in scope, first agree on the shareholding threshold with them. Then use enterprise-information platforms and equity penetration graphs to collect subsidiary names and domains. `There is no perfect tool for this step yet, so manual review is still more reliable. For larger organizations, Tscan and ENScan are currently the most practical options.
 ```
 
-### 1.3 Historical WHOIS and Reverse Lookup
+![image-20250711164011607](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711164011607.png?raw=1)
 
-By examining historical WHOIS records, such as registrant email addresses, phone numbers, and names, you can pivot to other domains registered by the same entity and discover deprecated or forgotten "shadow domains". If you are lucky, some of these domains still resolve to assets. Even if they do not, they can still be useful later for Host-header collision testing.
+### 1. Tscan
 
-#### 1. Historical WHOIS Lookup
+```markdown
+Configure the target site's cookies and API keys, then enter the company name to collect basic information. This is a convenient starting point.
 
-WHOIS records often change over time. Sometimes key values change, such as registrant email, phone number, or name. Searching these fields can reveal domains that were previously registered by the company but are no longer filed. ThreatBook is recommended here because it hides less relevant changes and highlights useful ones.
-
-```text
-https://x.threatbook.com/
+# https://github.com/TideSec/TscanPlus/releases
 ```
 
-#### 2. Reverse Lookup of Associated Domains
+![image-20260514220526796](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514220526796.png?raw=1)
 
-Once you obtain WHOIS data such as registrant email addresses, phone numbers, and names, use them to reverse-search other domains registered under the same identity. Some of those domains may still be active but absent from the current ICP filing.
+![image-20260514220830788](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514220830788.png?raw=1)
 
-```text
-https://x.threatbook.com/
+### 2. EnScan_GO
+
+```markdown
+After downloading the tool, configure the required API keys and cookies before use. Below is one of the commands I commonly use. If it fails, adjust it to fit your own environment and configuration file. The goal here is simply to collect baseline enterprise information, so there is no need to over-tune the command.
+
+`./enscan-v2.0.5-darwin-arm64 -n Beijing Jinshan Cloud Network Technology Co., Ltd. -field icp,weibo,wechat,app,job,wx_app,copyright,supplier -type tyc,chinaz -timeout 30 --hold --supplier --branch
+
+# Download: https://github.com/wgpsec/ENScan_GO
 ```
 
-## 0x02 Subdomain and IP Collection
+![image-20260514215624698](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514215624698.png?raw=1)
 
-Once root domains and basic enterprise data are collected, use them as seeds to expand the attack surface through multiple passive and active channels.
+![image-20260514220128132](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514220128132.png?raw=1)
 
-### 2.1 Passive Collection Through Asset Search Engines
+## 1.2. Use ICP Filing to Identify the Root Domain
 
-Passive collection should combine tools and asset-mapping platforms. Do not fully trust tool output. API-based tools may miss results because of implementation issues, and most assets are discovered during this phase, so broad coverage matters.
+```markdown
+After completing `1.1. Enterprise Information Lookup`, you should already have the company name and part of the filing information. The next step is to query the official MIIT ICP filing platform directly with the `company name` to retrieve the currently registered root domain. You need to click `Details`. `This data source is highly time-sensitive because ICP filings change over time, and MIIT is the primary source of that information.
 
-#### 2.1.1 Tools That Call Multiple APIs
-
-##### 1. Tscan
-
-Tscan is placed first because it can quickly gather the information you need. For deeper collection, however, you should still use the syntax of multiple asset-mapping platforms.
-
-1. Configure all available API keys.
-2. Collect domains and IPs through ICP numbers. Use the main filing number rather than a sub-filing number.
-3. Collect subdomains and IPs with the root domain.
-4. Collect subdomains and IPs with the certificate field.
-
-Note: wildcard certificates and fuzzy matching can introduce noise. For example, searching `app.com.cn` may return `abcdefapp.com.cn`, which is not a target asset, so manual review is required.
-
-Download:
-
-```text
-https://github.com/TideSec/TscanPlus/releases
+# https://beian.miit.gov.cn/
 ```
 
-##### 2. subfinder
+![image-20250710100319990](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710100319990.png?raw=1)
 
-`subfinder` is a passive subdomain tool that supports many commercial and community APIs.
+## 1.3. Historical WHOIS and Reverse Lookup
 
-1. Check where the config file is located:
+```markdown
+By reviewing historical domain registration data such as registrant email addresses, phone numbers, and names, you can pivot to other domains registered under the same identity and uncover retired or forgotten "shadow domains." If you are lucky, some of these domains will still lead to active assets. Even if they do not, they may still be useful later during Host header collision testing.
+```
 
-```bash
+```markdown
+1. Query Historical WHOIS
+A company's WHOIS data often changes over time, and sometimes the key fields change as well, such as the registrant email address, phone number, or name. Searching on those fields can reveal domains that were once registered by the company but never appeared in current filings. ThreatBook is recommended here because it suppresses less important changes and makes the useful pivots easier to spot.
+
+# https://x.threatbook.com/
+```
+
+![image-20260522162057934](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260522162057934.png?raw=1)
+
+```markdown
+2. Pivot to Related Domains
+Once you obtain WHOIS data such as the registrant's email address, phone number, and name, use those values to pivot into additional registered domains. Some of these domains may still be active even though they no longer appear in the company's current filings, and the organization itself may have forgotten about them.
+
+# https://x.threatbook.com/
+```
+
+![image-20260522162612812](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260522162612812.png?raw=1)
+
+# 0x02. Subdomain and IP Collection
+
+```markdown
+After completing `1. Root Domain and Enterprise Profiling`, you should already have the company's baseline information. The next step is to expand outward from those initial clues through a mix of passive and active discovery channels.
+```
+
+## 2.1. Passive Collection via Asset Search Platforms
+
+```markdown
+`Note: Passive collection should combine local tooling with external asset search platforms. Tool output should never be trusted blindly, and API-based collection can miss results for implementation reasons. Since most assets are discovered at this stage, coverage should be as broad as possible.
+```
+
+### 2.1.1. API-Driven Tooling
+
+#### 1. Tscan (Paid Multi-Platform Sources)
+
+```markdown
+Tscan is listed first because it can quickly gather the information we usually need. When deeper collection is required, however, you should still fall back to the query syntax of the major asset search platforms. Unless the scenario really demands exhaustive coverage, there is usually no need to go overly deep here because it becomes very time-consuming.
+```
+
+```markdown
+1. Configure the APIs of each platform
+`Try to configure as many data sources as possible. Even if they add only a small number of assets, one of those extra results could still be the critical entry point.` Query asset data through ICP filings, the root domain, and certificate-bound domains.
+
+2. Collect domains and IPs via ICP filing
+Enter the main ICP filing number obtained during `1. Root Domain and Enterprise Profiling`, then select `Registration` as the query field. `Make sure to use the primary ICP filing number rather than a sub-filing number, and remember to enable the asset search platforms on the right. They are not all selected in this demo.` This usually returns a substantial amount of information tied to the filing number.
+```
+
+```markdown
+# Download: https://github.com/TideSec/TscanPlus/releases
+```
+
+![image-20260514222949152](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514222949152.png?raw=1)
+
+![image-20260514223544146](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514223544146.png?raw=1)
+
+```markdown
+3. Collect subdomains and IPs via the root domain
+Enter the root domain obtained during `1. Root Domain and Enterprise Profiling`, then select `Domain` as the query field. `Remember to enable the asset search platforms on the right. They are not all selected in this demo.`
+```
+
+![image-20260514225322546](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514225322546.png?raw=1)
+
+```markdown
+4. Collect subdomains and IPs via certificates
+Enter the root domain obtained during `1. Root Domain and Enterprise Profiling`, then select `Certificate` as the query field. `Remember to enable the asset search platforms on the right. They are not all selected in this demo.`
+
+`Note: Some sites use wildcard certificates, and certificate matching on asset platforms can be fuzzy. For example, searching for app.com.cn may also return assets such as abcdefapp.com.cn. Those are not target assets, so the results still require manual review.`
+```
+
+![image-20260514230045555](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514230045555.png?raw=1)
+
+#### 2. subfinder (Paid Multi-Platform Sources)
+
+```markdown
+0. You can locate the subfinder configuration file with the following command:
 ./subfinder -version
+
+1. Configure the API keys for sources such as bevigil, censys, chaos, digitalyama, DNSDumpster, FOFA, GitHub, Hunter, IntelX, LeakIX, Netlas, Quake, rsecloud, Shodan, and ZoomEye, then run subfinder in full-collection mode.
+
+
+2. Example command:
+`./subfinder -dL domains.txt -rl 20 -all -json -o results.json
+
+# Download: https://github.com/projectdiscovery/subfinder/releases
 ```
 
-2. Configure as many APIs as possible, including `bevigil`, `censys`, `chaos`, `digitalyama`, `dnsdumpster`, `fofa`, `github`, `hunter`, `intelx`, `leakix`, `netlas`, `quake`, `rsecloud`, `shodan`, and `zoomeyeapi`.
+![image-20260515005949513](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515005949513.png?raw=1)
 
-3. Example command:
+![image-20260514235657334](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514235657334.png?raw=1)
 
-```bash
-./subfinder -dL domains.txt -rl 20 -all -json -o results.json
-```
+![image-20260514235823414](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514235823414.png?raw=1)
 
-Download:
+### 2.1.2. Asset Search Platforms
 
-```text
-https://github.com/projectdiscovery/subfinder/releases
-```
+#### 1. Domain Search
 
-#### 2.1.2 Asset Search Platforms
-
-##### 1. Domain Search
-
-```text
-# Hunter
+```markdown
+# Hunter 
 domain.suffix="app.com.cn"
-
-# Quake
+# Quake 
 domain:"app.com.cn"
-
 # FOFA
 host="talentsec.cn"
 domain="talentsec.cn"
 ```
 
-##### 2. ICP Filing Search
+![image-20260522175222606](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260522175222606.png?raw=1)
 
-```text
-# Hunter
-icp.number="filing-number"
+#### 2. ICP Filing
 
-# Quake
-icp:"filing-number"
-
+```markdown
+# Hunter 
+icp.number="备案号"
+# Quake 
+icp:"Registration number"
 # FOFA
 icp="沪ICP备20019790号"
 ```
 
-##### 3. `icon_hash`
+![image-20250710170452073](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710170452073.png?raw=1)
 
-First save either the icon download path or the icon hash collected from asset platforms. They are useful later when searching for additional edge assets.
+#### 3. `icon_hash`
 
-```text
-# Hunter (MD5 of the favicon)
+```markdown
+Based on the results collected from asset search platforms, save either the icon download path or the platform-provided `icon_hash` value for later use when pivoting to additional edge assets.
+# Hunter (using favicon’s MD5 value)
 web.icon="MD5"
-
-# Quake (MD5 of the favicon)
+# Quake (using favicon’s MD5 value)
 favicon:"MD5"
-
-# FOFA (mmh3)
+# FOFA (using mmh3 algorithm)
 icon_hash="585442251"
 ```
 
-##### 4. Search by `title` and `body`
+![image-20260522173706545](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260522173706545.png?raw=1)
 
-Title search:
+#### 4. `title` and `body` Queries
 
-```text
-# Hunter
-web.title="title"
-
-# Quake
-title:"title"
-
+```markdown
+1. title
+# Hunter 
+web.title="标题"
+# Quake 
+title:"标题"
 # FOFA
 title="螣龙安科"||title="螣龙安科，专注于新一代攻击面管理"
 ```
 
-Body search:
+![image-20250711141408323](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711141408323.png?raw=1)
 
-```text
-# Hunter
-web.body="content"
+```markdown
+2. body
+`Note that the body query cannot use the title keyword, which will cause duplicate results.
 
-# Quake
-body:"content"
-
+# Hunter 
+web.body="内容"
+# Quake 
+body:"内容"
 # FOFA
 body="螣龙安科是国内新一代主动安全领域的专精特新企业，致力于为客户提供专业的标准化产品与解决方案。"||body="螣龙安科，螣龙天眼，螣龙天眼ASM，螣龙攻击面管理系统"
 ```
 
-When using body search, avoid reusing title keywords; otherwise you often get duplicate results.
+![image-20250711141729654](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711141729654.png?raw=1)
 
-### 2.2 Brute-Forcing Subdomains
+## 2.2. Subdomain Brute-Forcing
 
-Passive sources such as search-engine crawlers, certificate transparency logs, and threat-intelligence databases all have a delay. If a target just configured a new subdomain, passive APIs may not see it yet. Wordlist-based brute-forcing can reveal it in real time.
-
-#### 1. Findomain
-
-`Findomain` supports both passive APIs and brute-force expansion.
-
-1. Its config file must be downloaded manually. Use the compiled default config:
-
-```text
-https://github.com/Findomain/Findomain/tree/master/config_examples
+```markdown
+Principle: Search-engine crawlers, certificate transparency logs, and threat-intelligence feeds all have a time lag. If the target organization has just brought a new subdomain online, passive sources may not see it yet. Wordlist-based brute-forcing can often resolve it in near real time.
 ```
 
-2. Save the root domains gathered earlier into `domains.txt`, configure API keys, and reuse Tscan's wordlist if needed.
-3. Example command:
+### 1. Findomain
 
-```bash
+```markdown
+0. Download and load the Findomain configuration file manually. In practice, the compiled default configuration is usually sufficient.
+https://github.com/Findomain/Findomain/tree/master/config_examples
+
+1. Save the main domain name we obtained in "1. Main domain name & enterprise information collection" into domains.txt, configure Apikey, Findomain's configuration file can be run, and the dictionary can use Tscan's dictionary
+
+2. Command
 ./findomain --file domains.txt --wordlist subnames-9.5w.txt --config config.example.yml --resolved --output
 ```
 
-Download:
-
-```text
-https://github.com/Findomain/Findomain
+```markdown
+# Download: https://github.com/Findomain/Findomain
 ```
 
-#### 2. OneForAll
+![image-20260515001750864](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515001750864.png?raw=1)
 
-`OneForAll` supports passive collection plus subdomain brute force. In this workflow, its brute-force capability is the main focus.
+![image-20260515010639947](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515010639947.png?raw=1)
 
-1. Configure API keys in `config/api.py`.
-2. Save the root domains into `domains.txt`.
-3. Example command:
+### 2. OneForAll
 
-```bash
+```markdown
+0. Configure the OneForAll API settings in `config/api.py`.
+
+1. Save the main domain name we obtained in "1. Main domain name & enterprise information collection" into domains.txt, configure Apikey, OneForAll supports interface acquisition + domain name blasting, and its dictionary blasting function is mainly used here.
+
+2. Command
 python oneforall.py --targets ./domains.txt --wordlist subnames-9.5w.txt --brute True run
+
+`Note: Python tools should be run in isolated virtual environments whenever possible. Many of them require different dependency versions, and conflicts are common. A virtual environment keeps each tool self-contained.`
 ```
 
-Important: for Python tools, it is better to run them in isolated virtual environments because dependency conflicts are common.
-
-Download:
-
-```text
-https://github.com/shmilylty/OneForAll
+```markdown
+# Download: https://github.com/shmilylty/OneForAll
 ```
 
-### 2.3 Certificate Transparency Queries
+![image-20260515004513027](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515004513027.png?raw=1)
 
-To prevent certificate authorities from abusing certificate issuance, public TLS certificates issued by mainstream trusted CAs are generally subject to CT policies. As a result, many public-facing subdomains are recorded in CT logs permanently. If a company has ever applied for an HTTPS certificate for a subdomain, that subdomain may have already been exposed publicly through CT data.
+![image-20260515004912996](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515004912996.png?raw=1)
 
-#### 1. `crt.sh`
 
-Query the root domain directly to retrieve domain names historically bound to certificates.
 
-```text
-https://crt.sh/?q=talentsec.cn
+## 2.3. Certificate Transparency Search
+
+```markdown
+Principle: To reduce abuse by certificate authorities, TLS certificates issued by mainstream trusted CAs are generally subject to Certificate Transparency policies. As a result, many public-facing subdomains leave permanent records in CT logs. `That means that if the target organization has ever requested an HTTPS certificate for a subdomain, there is a good chance that subdomain has already been exposed through CT data.`
 ```
 
-#### 2. SSLMate
+### 1. `crt.sh`
 
-Also useful for querying domains tied to historical certificates.
-
-```text
-https://sslmate.com/ct_search_api/
+```markdown
+# https://crt.sh/?q=talentsec.cn
+Call the certificate binding interface to directly query the primary domain name to obtain domain name information bound to the certificate history.
 ```
 
-### 2.4 Threat Intelligence Queries
+![image-20250710135029477](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710135029477.png?raw=1)
 
-Threat-intelligence platforms process huge volumes of DNS requests, malware callback logs, and security-device telemetry. Those logs contain many domain-resolution traces. Threat-intelligence queries therefore work well as a supplementary source for finding hidden subdomains and related infrastructure.
+### 2. SSLMate
 
-#### 1. ThreatBook
-
-Search the root domain to retrieve subdomain information.
-
-```text
-https://x.threatbook.cn/
+```markdown
+# https://sslmate.com/ct_search_api/
+Call the certificate binding interface to directly query the primary domain name to obtain the domain name information bound to the certificate history.
 ```
 
-#### 2. Qianxin Threat Intelligence
+![image-20250710183745615](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710183745615.png?raw=1)
 
-Search the root domain to obtain `CNAME` records and associated domains. The associated-domain module often includes useful subdomains.
+## 2.4. Threat Intelligence Search
 
-```text
-https://ti.qianxin.com/
+```markdown
+Principle: Threat-intelligence platforms process massive volumes of DNS activity, malware callback traffic, and security-device telemetry every day. Those datasets contain a large amount of domain-resolution activity. `As a supplementary data source, threat-intelligence searches can reveal subdomains and related infrastructure that are difficult to uncover with conventional methods, and sometimes even expose deeply hidden subdomains that do not show up in brute-force or search-engine results.`
 ```
 
-#### 3. 360 Threat Intelligence
+### 1. ThreatBook (Paid)
 
-Search the root domain to retrieve subdomain information.
-
-```text
-https://ti.360.cn/domain/talentsec.cn
+```markdown
+# ThreatBook Community, https://x.threatbook.cn/
+Search for `root domain` to get subdomain information
 ```
 
-### 2.5 Search Engine Queries
+![image-20260515102718931](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515102718931.png?raw=1)
 
-Google search is a critical passive reconnaissance technique in both asset mapping and penetration testing. Use `site:` queries to find indexed pages related to the target domain and exclude `www` when necessary.
+### 2. Qianxin Threat Intelligence (Login Required)
 
-```text
-https://www.google.com
-site:app.com.cn -www
+```markdown
+# Qianxin Threat Intelligence Center https://ti.qianxin.com/
+Searching for the `root domain` can return `CNAME` records and associated domains, which often include useful subdomains.
 ```
 
-If Google API integration is too cumbersome, browser plugins such as `Google SERP Scrapper` can help capture results.
+![image-20250710144758100](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710144758100.png?raw=1)
 
-### 2.6 Historical DNS Records
-
-When a service is first launched or tested, it is often pointed directly to the real origin server before a CDN is added. Historical DNS records can reveal those old IPs and forgotten domains. Such "shadow assets" are often poorly maintained and are therefore valuable entry points.
-
-#### 1. DNSDumpster
-
-Search the root domain or subdomain to inspect historical DNS records and identify related domains and IPs.
-
-```text
-https://dnsdumpster.com
+```markdown
+2. Search for the `root domain`, then open the `Associated Domains` section to extract more subdomain information.
 ```
 
-#### 2. ViewDNS
+![image-20250710144930616](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710144930616.png?raw=1)
 
-```text
-https://viewdns.info/iphistory/?domain=talentsec.cn
+### 3. 360 Threat Intelligence (Login Required)
+
+```markdown
+# 360 Threat Intelligence Center https://ti.360.cn/domain/talentsec.cn
+1. Search for the `root domain` to retrieve the corresponding subdomain information.
 ```
 
-#### 3. SecurityTrails
+![image-20250710150425169](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710150425169.png?raw=1)
 
-```text
-https://securitytrails.com/domain/talentsec.cn/history/a
+## 2.5. Search Engine Queries
+
+```markdown
+# https://www.google.com
+In asset mapping and penetration testing, using the Google search engine (a technique called Google Hacking or Google Dorking) to query target websites is an extremely critical "passive information collection" technique.
+
+Use `site:app.com.cn -www` to search pages related to the target domain while excluding the `www` host. Google API integration is cumbersome, so a browser extension such as `Google SERP Scrapper` can be used to collect results.
 ```
 
-### 2.7 Extract IP `C` Segments (Exclude CDN Ranges)
+![image-20260515110713488](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515110713488.png?raw=1)
 
-In real enterprise operations, a company often runs many internal systems and infrastructure nodes that are never bound to domains and are accessible only by IP. There are two common routes for collecting such IP ranges.
+![image-20260514142604541](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260514142604541.png?raw=1)
 
-#### 2.7.1 Route One: ASN Collection
+## 2.6. Historical DNS Queries (Paid Membership Required)
 
-This route is mainly useful for very large companies that own ASNs. IP ranges under a company's ASN are more accurate and more complete than simple /24 aggregation.
-
-##### 1. Identify the Company's ASN
-
-Find the company's English name first. You can search it on Google, Wikipedia, or Baidu Baike. Then search the name on:
-
-```text
-https://bgp.he.net/
+```markdown
+During testing or in the early stages of deployment, services are often pointed directly at the origin server before a CDN is introduced. Historical DNS records can help you recover those old IP addresses and deprecated domain names. Such "shadow assets" are often unmaintained, missing security patches, and sometimes still exposed with weak credentials or unauthorized access, making them valuable entry points during offensive assessments.
 ```
 
-If the exact English name is unclear, take a confirmed company IP and reverse-check the ASN:
+### 1. DNSDumpster
 
-```bash
-whois 103.92.88.7 | grep -i "origin\|netname\|descr"
-curl https://ipinfo.io/103.92.88.7 | jq '.org'
+```markdown
+# https://dnsdumpster.com
+Search either the `root domain` or a `subdomain` directly to review historical DNS records and identify previously configured domains and IP addresses.
 ```
 
-##### 2. Retrieve IP Prefixes Under the ASN
+![image-20250710140028105](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710140028105.png?raw=1)
 
-Search the ASN on `bgp.he.net` and click `Prefixes v4`, or use:
+![image-20250710140550324](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710140550324.png?raw=1)
 
-```bash
-whois -h whois.radb.net -- '-i origin AS38378' | grep -E "^route|^descr|^origin"
+### 2. ViewDNS
+
+```markdown
+# https://viewdns.info/iphistory/?domain=talentsec.cn
 ```
 
-Be aware that a single ASN can contain multiple organizations. Keep only the ranges that really belong to the agreed target.
+![image-20250711150618586](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711150618586.png?raw=1)
 
-#### 2.7.2 Route Two: Data Merging
+### 3. SecurityTrails
 
-Use previously gathered domains and IPs to aggregate repeated `C` segments.
-
-```text
-https://github.com/EdgeSecurityTeam/Eeyes
+```markdown
+# https://securitytrails.com/domain/talentsec.cn/history/a
 ```
 
-1. Aggregate `C` segments from domains:
+![image-20250711151918700](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711151918700.png?raw=1)
 
-```bash
-./Eeyes-darwin -l domain.txt
+![image-20250711152522943](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711152522943.png?raw=1)
+
+## 2.7. Extract Candidate /24 Ranges (Exclude CDN Addresses)
+
+```markdown
+In the actual operation and maintenance of enterprises, in addition to the official website for external services that is bound to domain names, there are also a large number of internal systems and infrastructure that are never bound to domain names and are only accessed through IP.
+# Just choose one route
 ```
 
-This also supports CDN exclusion. In practice, keep only IPs that appear more than three times to reduce noise.
+### 2.7.1. Route One: ASN-Based Collection
 
-2. Aggregate `C` segments from IPs:
-
-Use Tscan to process the de-duplicated IP list and extract `C` segments that appear at least three times.
-
-### 2.8 IP Asset Collection
-
-Once candidate IP ranges are available, choose one of the following routes.
-
-#### 2.8.1 Route One: Asset Search Platforms
-
-Use platforms such as Hunter, Quake, FOFA, and ThreatBook to list live IP assets in a given `C` segment and inspect reverse domains and ownership information.
-
-```text
-Hunter: https://hunter.qianxin.com/
-Quake: https://quake.360.net/quake/#/
-FOFA: https://fofa.info/
-ThreatBook: https://x.threatbook.com/v5/survey?q=ip%3D%22122.194.76.0%2F24%22
+```markdown
+`This method is best suited to very large enterprises, because they often operate their own ASNs. IP ranges announced under those ASNs are usually self-owned assets, making this approach more accurate and more complete than simple /24 aggregation.
 ```
 
-#### 2.8.2 Route Two: Tool-Based Workflow
+#### 1. Confirm the company’s ASN number
 
-##### 1. Liveness Detection for `C` Segments
+```markdown
+First identify the company's English name. You can usually find it by searching the company on Google, Wikipedia, or Baidu Baike. Then search that English name on `https://bgp.he.net/`. `Be careful with fuzzy matches here. Only keep entries that are clearly and exactly associated with the target.`
 
-Perform liveness checks on the candidate `C` ranges first, starting with a reduced port set. This identifies which IPs are worth deeper investigation.
+# https://bgp.he.net/
+```
 
-##### 2. Confirm IP Ownership
+![image-20260522111455869](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260522111455869.png?raw=1)
 
-Because `C`-segment collection can drift into unrelated assets, confirm ownership afterward.
+```markdown
+If you cannot identify the company's English name directly, start with an IP that is already confirmed to belong to the target and use it to pivot into the ASN.
 
-Keep:
+`Command 1: whois 103.92.88.7 | grep -i "origin\|netname\|descr"
+`Command 2: curl https://ipinfo.io/103.92.88.7 | jq '.org'`
+```
 
-- ranges registered under the target company's name
-- dedicated lines and self-owned ASN ranges
-- cloud ranges that repeatedly host core target subdomains
+![image-20260522111623050](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260522111623050.png?raw=1)
 
-Exclude:
+#### 2. Enumerate IP Prefixes Under the ASN
 
-- obvious CDN IPs
-- public third-party service infrastructure
+```markdown
+Search the ASN directly on the website and open `Prefixes v4`, or enumerate the prefixes with command-line queries.
 
-Useful lookup sites:
+# https://bgp.he.net/
+# whois -h whois.radb.net -- '-i origin AS38378' | grep -E "^route|^descr|^origin"
+```
 
-```text
+![image-20260522112057484](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260522112057484.png?raw=1)
+
+![image-20260522114038217](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260522114038217.png?raw=1)
+
+```markdown
+`Be aware that a single ASN can cover multiple organizations. If the scope is limited to Bosch China, for example, IP ranges that belong to Bosch Home Appliances should be excluded.`
+```
+
+![image-20260522112151408](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260522112151408.png?raw=1)
+
+### 2.7.2. Route Two: Data Aggregation
+
+```markdown
+# https://github.com/EdgeSecurityTeam/Eeyes
+
+1. Domain Name Summary Section C
+Enter the subdomain name collected in the previous steps and extract segment C assets through `./Eeyes-darwin -l domain.txt`
+`Supports excluding CDN assets. Note that the IP must appear more than 3 times. If the number of times is small, it is easy to collect data incorrectly.
+```
+
+![image-20250711171614581](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711171614581.png?raw=1)
+
+```markdown
+2. IP summary segment C
+Then use Tscan, enter the IP collected in the previous step (after deduplication), and extract the C segment addresses that appear more than 3 times.
+```
+
+![image-20260515134007355](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515134007355.png?raw=1)
+
+
+
+## 2.8. IP Asset Collection
+
+```markdown
+# Just choose one route
+```
+
+### 2.8.1. Route One: Asset Search Platforms
+
+```markdown
+Because the first route relies on a relatively narrow data source, it usually needs to be combined with other methods. The second route uses existing asset search platforms directly. For example, you can feed a candidate /24 range into an asset platform, list the live IP assets, and inspect reverse domains, ownership data, and related metadata.
+```
+
+```markdown
+Recommended use:
+# Hunter https://hunter.qianxin.com/
+# Quake https://quake.360.net/quake/#/
+# FOFA https://fofa.info/
+# ThreatBook https://x.threatbook.com/v5/survey?q=ip%3D%22122.194.76.0%2F24%22
+```
+
+![image-20260519215634936](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260519215634936.png?raw=1)
+
+![image-20260519220123946](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260519220123946.png?raw=1)
+
+### 2.8.2. Route Two: Tool-Assisted Workflow
+
+#### 1. Live Host Discovery for Candidate /24 Ranges
+
+```markdown
+Probe the candidate /24 ranges for live hosts first, starting with a reduced port list to identify reachable IPs.
+`This step is critical. You need to confirm which assets are actually alive before moving on to reverse-IP checks and full port scans. The main purpose is to save time.`
+```
+
+![image-20260515135058632](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515135058632.png?raw=1)
+
+#### 2. IP Ownership Verification
+
+```markdown
+Because /24-based collection can drift into unrelated assets, you need to verify ownership after live-host discovery. Check whether the range belongs to the target's dedicated line and whether the resolved domains still point to the organization. `While validating ownership, it is also worth performing reverse-domain checks because newly discovered IPs may lead to additional domains.`
+
+• Exclude: obvious CDN IP addresses.
+• Exclude: third-party public-service IP addresses.
+• Keep: ASN ranges and dedicated-line ranges registered under the target organization's name.
+• Keep: cloud server ranges that cannot be attributed with certainty but repeatedly host core target subdomains discovered earlier.
+```
+
+```markdown
 https://tool.chinaz.com/same
 https://dns.aizhan.com/
 https://x.threatbook.com/v5/batchQuery
 https://site.ip138.com/
+https://dns.aizhan.com/
 https://www.yougetsignal.com/tools/web-sites-on-web-server/
 ```
 
-##### 3. Full Port Scanning
+![image-20260515135651132](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515135651132.png?raw=1)
 
-After filtering the IPs, scan all ports. The final output is an `IP + port` asset list that should later be merged with the rest of your reconnaissance results.
+#### 3. Full Port Scanning
 
-### 2.9 JavaScript File Discovery
+```java
+Perform a full port scan on the IP reserved above. The final output result is that the IP + port assets need to be integrated with the previously collected assets. The subsequent fingerprint identification will not be demonstrated here.
+```
 
-Use all previously collected URLs as input. Crawl front-end JavaScript files, extract embedded URLs, and then filter the output to identify new subdomains and endpoints.
+![image-20260515140136476](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515140136476.png?raw=1)
+
+
+
+## 2.9. JavaScript File Discovery (Time-Consuming)
+
+```markdown
+Use all previously collected URLs as input, crawl the site's front-end JavaScript files, extract embedded URLs from those scripts, and then filter the results to identify new subdomains.
+```
 
 #### 1. URLFinder
 
-`URLFinder` can crawl a website and extract API paths from its JavaScript files. A practical advantage is that extracted paths can be combined with dictionaries for fuzzing and status checks.
+```markdown
+1. The example below shows URLFinder crawling a single site. In practice, it is better to process multiple sites together.
+■ Key advantage: after extracting API paths, you can combine them with a custom dictionary for fuzzing or status-code checks to confirm whether those interfaces are actually reachable.
 
-```bash
-./URLFinder-macos-arm64 -u https://www.talentsec.cn/ -s all -m 2
+Command:
+`./URLFinder-macos-arm64 -u https://www.talentsec.cn/ -s all -m 2`
 ```
 
-Download:
-
-```text
-https://github.com/pingc0y/URLFinder
+```markdown
+# Download: https://github.com/pingc0y/URLFinder
 ```
+
+![image-20250710193348603](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250710193348603.png?raw=1)
 
 #### 2. JSFinder
 
-`JSFinder` can also crawl JavaScript files and extract domains. Its key advantage is recursive crawling: when it discovers a new URL from one JavaScript file, it can keep following it to locate more scripts.
+```markdown
+1. JSFinder can also crawl JavaScript files and extract domains.
+■ Key advantage: it supports recursive crawling. When it finds a new URL inside a script, it can continue following that URL to locate additional JavaScript files.
 
-```bash
-python JSFinder.py -u https://www.talentsec.cn/
+Command:
+`python JSFinder.py -u https://www.talentsec.cn/`
 ```
 
-Download:
-
-```text
-https://github.com/Threezh1/JSFinder
+```markdown
+# Download: https://github.com/Threezh1/JSFinder
 ```
 
-#### 3. FindSomething
+![image-20250711095243612](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711095243612.png?raw=1)
 
-This is delivered as a browser extension. Its main advantage is that it can help with manual DOM-triggered JavaScript loading, which is highly useful in day-to-day penetration testing.
+#### 3. FindSomething (Single-Site Use)
 
-Download:
-
-```text
-https://github.com/momosecurity/FindSomething
+```markdown
+1. Introduced as a browser extension
+■ Outstanding advantages: It supports manual triggering of DOM nodes to load JS, but it cannot be crawled in batches due to manual triggering of DOM, so it can be used in daily penetration.
 ```
 
-### 2.10 Directory Scanning
-
-Directory brute-forcing is intended to find sensitive paths and files that are not linked publicly but still exist on the server. In practice, use backend-oriented wordlists, small thread counts, and proxies if necessary because some requests can trigger WAF rules.
-
-Download:
-
-```text
-https://github.com/TideSec/TscanPlus/releases
+```markdown
+# Download: https://github.com/momosecurity/FindSomething
 ```
 
-Some results, such as `/index` and `/admin`, may be better treated as separate URL assets rather than just pages under the same site.
+![](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711094929647.png?raw=1)
 
-### 2.11 Host Header Collision
+## 2.10. Directory Scanning
 
-When a domain no longer resolves in DNS but the upstream web server, reverse proxy, load balancer, or CDN origin still retains Host-based virtual-host routing, manually mapping a candidate domain to a candidate IP can still hit the correct route and expose the service.
+```markdown
+The goal of directory scanning is to identify sensitive paths and files on the target website that are not exposed through normal links but do exist and can be accessed directly.
 
-The rough workflow is:
+1. In practice, backend-oriented wordlists are usually enough. Try routing through a proxy pool when needed, because some paths may trigger WAF rules. Thread counts should also stay relatively low.
+```
 
-1. Collect IPs of reverse-proxy or candidate web servers.
-2. Collect domains with broken or anomalous DNS records.
-3. Test them in a Cartesian-product manner until a domain and IP combination reveals a valid service.
+```markdown
+# Download: https://github.com/TideSec/TscanPlus/releases
+```
+
+![image-20260515145923699](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515145923699.png?raw=1)
+
+![image-20260515150041247](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515150041247.png?raw=1)
+
+```markdown
+For example, this site "/index" and "/admin" can be regarded as two sites. They can not only be leaked as background login pages, but also can be distinguished as URL assets.
+```
+
+![image-20250711114145139](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711114145139.png?raw=1)
+
+![image-20250711114318160](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711114318160.png?raw=1)
+
+## 2.11. Host Header Collision (For Inaccessible Assets)
+
+```markdown
+When a domain no longer resolves publicly but Host-based virtual-host routing is still retained in a web server, reverse proxy, load balancer, or CDN origin configuration, manually mapping the domain to a candidate IP may still hit the correct route and expose the target service. `That is why direct IP access may fail and direct domain access may also fail, while the right domain-plus-IP combination still reaches the site.`
+
+Step 1: Collect the IP address of the reverse proxy server
+Step 2: Collect domain names with abnormal resolution and resolve them to domain names in the intranet
+Step 3: Manually resolve the domain name to a certain IP, use Cartesian product collision, and match pairs until the domain name can access a certain system
+```
 
 #### 1. HostCollision
 
-Use inaccessible domains and all candidate IPs for collision testing:
-
-```bash
-java -jar HostCollision.jar -ipFilePath ip.txt -hostFilePath host.txt
+```markdown
+From the inaccessible domain name, perform a collision test `java -jar HostCollision.jar -ipFilePath ip.txt  -hostFilePath host.txt` with all IPs. After the collision is successful, you can construct the request like this and fill in the real host. The following demonstrates the difference between configuring the correct host and not configuring the host.
 ```
 
-Download:
-
-```text
-https://github.com/pmiaowu/HostCollision
+```markdown
+# Download: https://github.com/pmiaowu/HostCollision
 ```
+
+![image-20250711133826918](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20250711133826918.png?raw=1)
+
+![image-20260515180645244](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515180645244.png?raw=1)
+
+![image-20260515180122831](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515180122831.png?raw=1)
 
 #### 2. Tscan
 
-Tscan also includes Host-header collision support. Paste the candidate IPs and domains into the interface and run it directly.
-
-## 0x03 New Media Accounts and Mobile Apps
-
-### 3.1 WeChat Public Accounts, Mini Programs, and Service Accounts
-
-There used to be a useful service called `新榜` for collecting historical WeChat public-account data, but it has shifted toward B2B and is no longer practical for individual users. In many cases, directly searching the target company's name inside WeChat still works.
-
-Example:
-
-```text
-金光纸业（中国）投资有限公司
+```markdown
+Tscan has also added a host collision function. You only need to paste the IP and domain name into it and run it.
 ```
 
-### 3.2 Mobile Apps
+![image-20260515180948072](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260515180948072.png?raw=1)
 
-#### 1. Obtain the App Name
+# 0x03. Social Media Accounts and Apps
 
-Search the company name directly in app stores. Developers usually bind published apps to enterprise identities. Also switch among different app stores, because test apps are sometimes released only on specific platforms.
+## 3.1. Official Accounts, Mini Programs, and Service Accounts
 
-Useful sites:
+```markdown
+There used to be a useful service called `Newrank` that could collect historical WeChat public-account data, but it has shifted toward a B2B model and is no longer practical for individual users. In most cases, directly searching the target company's name within WeChat is sufficient for this step.
 
-```text
-https://www.diandian.com/
-https://www.qimai.cn/account/setting
+Search example: Jinguang Paper (China) Investment Co., Ltd.
 ```
 
-## 0x04 Sensitive Information
+![image-20260518133144273](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260518133144273.png?raw=1)
 
-### 4.1 Google Hacking
+## 3.2. Apps
 
-The following Google dorks are useful for different discovery goals.
+```markdown
+1. Identify the app name
+Search for the company name directly in app stores. When an application is published, the developer identity is often tied to the company itself. Be sure to check multiple app stores, because test builds are sometimes released only on specific platforms.
+```
 
-#### 1. Search for Admin Panels
+```markdown
+# Diandian Data: https://www.diandian.com/
+# Qimai Data: https://www.qimai.cn/account/setting
+```
 
-Quickly exposes OA systems, CMS backends, test environments, and management portals on the public internet.
+![image-20260518134539530](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260518134539530.png?raw=1)
 
-```text
+![image-20260518140149901](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260518140149901.png?raw=1)
+
+![image-20260518140253691](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260518140253691.png?raw=1)
+
+# 0x04. Sensitive Information
+
+## 4.1. Google Hacking
+
+```markdown
+`Tips: You can make the following syntax into a skill, no need to replace it manually, and put the assets into the model with new syntax.
+```
+
+### 1. Management Portal Discovery
+
+```markdown
+Set the target scope to the root domain and confirmed IP addresses. This is a fast way to uncover exposed OA systems, CMS backends, and test-environment management portals on the public internet.
+
+# Note that using wildcard * may collect other assets. It is recommended to use the precise IP if there is a confirmed asset IP.
 (site:app.com.cn OR site:122.194.76.10) (intitle:"管理" OR intitle:"后台" OR intitle:"登录" OR intitle:"admin" OR intitle:"login" OR intitle:"dashboard" OR intitle:"system" OR intitle:"portal" OR intitle:"manage" OR inurl:admin OR inurl:login OR inurl:manage OR inurl:dashboard)
 ```
 
-#### 2. Search for Unauthenticated Interfaces
+### 2. Unauthenticated Interface Discovery
 
-Find common unauthorized APIs, monitor panels, and debugging pages.
-
-```text
+```markdown
+You can find common interfaces, monitoring panels, and debugging pages where unauthorized access or sensitive information leakage occurs due to improper enterprise configuration.
+# Note that using wildcard * may collect other assets. It is recommended to use the precise IP if there is a confirmed asset IP.
 (site:app.com.cn OR site:122.194.76.10) (inurl:swagger OR inurl:api-docs OR intitle:"Swagger UI" OR inurl:graphql OR inurl:graphiql OR inurl:altair OR inurl:v2/api-docs OR inurl:v3/api-docs OR inurl:postman OR inurl:doc.html)
 ```
 
-#### 3. Search for Java Middleware and Microservice Exposure
+![image-20260519182823014](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260519182823014.png?raw=1)
 
-Useful for Spring Boot endpoints, Druid dashboards, service registries, and middleware consoles.
+### 3. Unauthenticated Microservice and Java Middleware Exposure
 
-```text
+```markdown
+These dorks are tailored to the Java ecosystem and are useful for finding Spring Boot monitoring endpoints, Alibaba Druid dashboards, service registries, configuration centers, and similar middleware components.
+# Note that using wildcard * may collect other assets. It is recommended to use the precise IP if there is a confirmed asset IP.
 (site:app.com.cn OR site:122.194.76.10) (inurl:actuator OR inurl:druid OR inurl:nacos OR intitle:"Eureka" OR intitle:"Spring Boot Admin" OR inurl:jolokia OR inurl:dubbo OR inurl:weblogic OR inurl:jmx-console OR intitle:"Tomcat" OR intitle:"Welcome to JBoss")
 ```
 
-#### 4. Search for Operations and Monitoring Systems
+### 4. Operations and Monitoring Systems
 
-Useful for Kibana, Zabbix, Jenkins, GitLab, Harbor, Solr, phpMyAdmin, Hadoop, Flink, Spark, RabbitMQ, and similar infrastructure.
+```markdown
+Match the characteristic pages of operational infrastructure such as Kibana for logging, Zabbix for monitoring, Jenkins for CI/CD, and GitLab for source control. These systems are often meant for internal use only, so once they are exposed to the public internet they frequently become strong entry points.
 
-```text
+# Note that using wildcard * may collect other assets. It is recommended to use the precise IP if there is a confirmed asset IP.
 1. (site:app.com.cn OR site:122.194.76.10) (intitle:"Kibana" OR inurl:kibana OR intitle:"Zabbix" OR inurl:jenkins OR intitle:"Dashboard [Jenkins]" OR intitle:"GitLab" OR intitle:"Gitea" OR inurl:harbor OR inurl:solr OR inurl:phpmyadmin OR intitle:"phpMyAdmin" OR inurl:adminer OR intitle:"Hadoop" OR intitle:"Apache Flink" OR intitle:"Spark" OR intitle:"RabbitMQ Management" OR inurl:flower)
 
 2. (site:app.com.cn OR site:122.194.76.10) (inurl:"/phpinfo.php" OR intitle:"phpinfo()" OR inurl:"/server-status" OR inurl:"/server-info" OR intitle:"Apache Status")
 ```
 
-#### 5. Search for Test Environments
+### 5. Test Environments
 
-```text
+```markdown
+Matches pages containing development/testing feature words in the URL path. This type of environment is generally used for pre-launch testing. It is usually not connected to WAF, and there may be hard-coded passwords or backdoor interfaces left to facilitate debugging, which is also one of the breakthrough points.
+
 (site:app.com.cn OR site:yicongfound.org OR site:122.194.76.10) (inurl:test OR inurl:dev OR inurl:staging OR inurl:demo OR inurl:uat OR inurl:beta OR inurl:sandbox OR inurl:pre OR inurl:local)
 ```
 
-#### 6. Search for Sensitive Files
+### 6. Sensitive Files
 
-```text
+```markdown
+Forcing Google to only return files in a specified format will inevitably store some documents with unauthorized access in enterprise operation and maintenance. In particular, storage buckets often store some unauthorized documents, which are directly exposed after being crawled by crawlers.
+# Note that using wildcard * may collect other assets. It is recommended to use the precise IP if there is a confirmed asset IP.
 1. (site:app.com.cn OR site:122.194.76.10) (ext:pdf OR ext:doc OR ext:docx OR ext:xls OR ext:xlsx OR ext:ppt OR ext:pptx OR ext:csv OR ext:txt)
+
 2. (site:app.com.cn OR site:122.194.76.10) ((ext:xls OR ext:xlsx OR ext:csv OR ext:txt) (intext:"密码" OR intext:"账号" OR intext:"通讯录" OR intext:"联系方式" OR intext:"机密" OR intext:"内部" OR intext:"confidential" OR intext:"credentials" OR intext:"token"))
+
 3. (site:app.com.cn OR site:122.194.76.10) (ext:sql OR ext:tar.gz OR ext:zip OR ext:rar OR ext:bak OR ext:7z OR ext:dump OR ext:db OR ext:sqlite OR ext:gz OR ext:bz2 OR ext:tar)
+
 4. (site:app.com.cn OR site:122.194.76.10) (ext:env OR ext:ini OR ext:conf OR ext:config OR ext:xml OR ext:properties OR ext:yml OR ext:yaml OR ext:json OR ext:cfg OR ext:toml)
+
 5. (site:app.com.cn OR site:122.194.76.10) (ext:pem OR ext:crt OR ext:key OR ext:p12 OR ext:pub OR ext:ovpn OR ext:jks OR ext:keystore OR intext:"BEGIN RSA PRIVATE KEY" OR intext:"BEGIN OPENSSH PRIVATE KEY")
+
 6. (site:app.com.cn OR site:122.194.76.10) (ext:log OR inurl:log OR inurl:logs OR (ext:txt (intext:"Exception" OR intext:"Error")))
+
 7. (site:app.com.cn OR site:122.194.76.10) (inurl:.git OR inurl:.svn OR inurl:.DS_Store OR inurl:.hg OR inurl:.vscode OR inurl:.idea)
 ```
 
-#### 7. Search for Directory Listings
+### 7. Directory Listings
 
-```text
+```markdown
+This title will appear when the web server is not configured with a default home page and allows directory listing, and you can directly browse the file structure on the server.
+# Note that using wildcard * may collect other assets. It is recommended to use the precise IP if there is a confirmed asset IP.
 (site:app.com.cn OR site:122.194.76.10) (intitle:"index of" OR intitle:"Directory Listing For")
 ```
 
-#### 8. Search for Error Pages
+### 8. Error Page Discovery
 
-Useful for identifying database types and application stacks through exposed stack traces or fatal errors.
+```markdown
+These queries target distinctive application error messages. They are not the highest-yield technique, but they can still help confirm the target's database stack and application framework.
 
-```text
 (site:app.com.cn OR site:yicongfound.org OR site:122.194.76.10) (intext:"Fatal error:" OR intext:"Warning: mysql_connect()" OR intext:"stack trace:" OR intext:"Syntax error" OR intext:"java.lang.NullPointerException" OR intext:"SQL syntax" OR intext:"Exception in thread")
 ```
 
-#### 9. Search for Third-Party Collaboration Platforms and Boards
+### 9. Third-Party Collaboration Platform Exposure
 
-Search target-specific high-entropy keywords on third-party platforms such as Trello, Atlassian, Notion, Shimo, Yuque, ProcessOn, and GitHub to find leaked development artifacts, project boards, or test accounts.
+```markdown
+Search third-party cloud collaboration platforms with the target organization's most distinctive keywords. This can expose project boards, code snippets, test accounts, or other development artifacts associated with the target.
 
-```text
-(site:trello.com OR site:atlassian.net OR site:notion.so OR site:shimo.im OR site:yuque.com OR site:processon.com OR site:github.com) ("yicongfound" OR "金光纸业" OR "sinarmas")
+# Note: The following syntax has a large search range, and the keywords must be adjusted in time to be as accurate as possible.
+(site:trello.com OR site:atlassian.net OR site:notion.so OR site:shimo.im OR site:yuque.com OR site:processon.com OR site:github.com) ("yicongfound" OR "金光paper" OR "sinarmas")
 ```
 
-### 4.2 Cloud-Drive Search
+## 4.2. Cloud Drive Search
 
-Developers, operators, or outsourcing personnel sometimes upload internal source code, topology diagrams, VPN credentials, or handover documents to public cloud drives or note-taking platforms. Searching those sources can reveal valuable information.
+```markdown
+For the convenience of work, development, operation and maintenance or outsourcing personnel often package and upload the company's internal source code, network topology diagram, VPN account or handover documents to Baidu Cloud Disk, Alibaba Cloud Disk, or record them in cloud notes such as Yuque.
 
-Useful sites:
-
-```text
-https://www.lingfengyun.com/
-https://www.lzpanx.com/
-https://www.dalipan.com/
+# Lingfengyun: https://www.lingfengyun.com/
+# Lzpanx: https://www.lzpanx.com/
+# Dalipan: https://www.dalipan.com/
 ```
 
-Sample keyword directions:
-
-1. Network topology and IT architecture
-2. System handover and configuration documents
-3. Source code and database backups
-4. Internal admin files and employee directories
-
-### 4.3 Email Collection
-
-Email collection is often easiest through third-party interfaces. Most of them search by mail domain, so first identify the company's primary email domain during enterprise profiling.
-
-Useful sites:
-
-```text
-https://app.snov.io/domain-search?name=app.com.cn&tab=emails
-https://phonebook.cz/
-http://www.skymem.info/
-https://hunter.io/dashboard
-https://www.email-format.com/i/search/
+```markdown
+1. Find network topology and IT architecture
+Sin Guang Paper Topology
+Sinar Mas Group Structure
+APP China IP Planning
+sinarmas topology
+yicongfound architecture diagram
+ 
+2. Look for system handover and configuration documents
+Sinar Paper VPN
+Sinar Mas Group Fortress Machine
+APP China Password
+sinarmas account handover
+yicongfound configuration document
+ 
+3. Find core code and backup data
+Jin Guang Paper source code
+APP China database backup
+sinarmas sql backup
+yicongfound code
+ 
+4. Look for internal administration/address book leaks (social engineering tool)
+Sin Guang Paper Address Book
+Sinar Mas Group Roster
+APP China Organizational Structure
+sinarmas employee list
 ```
 
-### 4.4 Obtaining Website Source Code
+![image-20260519234939022](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260519234939022.png?raw=1)
 
-#### 1. Fingerprinting
+![image-20260520232223400](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260520232223400.png?raw=1)
 
-Use tools such as `Tscan` and `Wappalyzer` to identify technologies and fingerprints.
+## 4.3. Email Collection
 
-```text
-https://github.com/TideSec/TscanPlus/releases
-https://chromewebstore.google.com/detail/wappalyzer-technology-pro/gppongmhjkpfnbhagpmjfkannfbllamg?hl=zh-CN&utm_source=ext_sidebar
+```markdown
+Email collection can usually be done through third-party services. Most of them search by email domain, so before using them you should first determine the company's primary mail domain during `1. Root Domain and Enterprise Profiling`. These services crawl or enumerate mailbox data across the internet, which saves time and can produce a surprisingly large dataset if the underlying sources are strong.
+
+# https://app.snov.io/domain-search?name=app.com.cn&tab=emails
+# https://phonebook.cz/
+# http://www.skymem.info/
+# https://hunter.io/dashboard
+# https://www.email-format.com/i/search/
+# telegram social engineering library (I won’t list the legal risks, just google a bunch of them)
 ```
 
-#### 2. Open-Source Products
+![image-20260520232737788](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260520232737788.png?raw=1)
 
-If the product is open source, search GitHub or Gitee and clone the code directly for auditing.
+![image-20260520233326221](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260520233326221.png?raw=1)
 
-```text
-https://github.com/
-https://gitee.com/
+## 4.4. Source Code Acquisition
+
+### 1. Fingerprinting
+
+```markdown
+Use tools such as Tscan and Wappalyzer to identify the product's technology stack and fingerprint information.
+
+# Tscan：https://github.com/TideSec/TscanPlus/releases
+# Wappalyzer： https://chromewebstore.google.com/detail/wappalyzer-technology-pro/gppongmhjkpfnbhagpmjfkannfbllamg?hl=zh-CN&utm_source=ext_sidebar
 ```
 
-#### 3. Commercial Products
+![image-20260528100339175](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260528100339175.png?raw=1)
 
-Some commercial products can be found on resale or underground markets. This carries legal risk, so treat it carefully.
+![image-20260528094848203](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260528094848203.png?raw=1)
 
-```text
-https://www.huzhan.com/
-https://28xin.com/
-https://bbs.bcb5.com/
-https://darkforums.su/
+### 2. Open-Source Products
+
+```markdown
+• For open-source products, GitHub and Gitee repositories can usually be cloned directly for auditing.
+
+# https://github.com/
+# https://gitee.com/
 ```
 
-#### 4. Heavily Customized or Self-Developed Systems
+![image-20260528104919491](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260528104919491.png?raw=1)
 
-Practical tips:
+### 3. Commercial Products
 
-- check repository commit history after finding a hit
-- inspect other repositories of the same developer
-- pay attention to forks when the original repo is gone
+```markdown
+• Commercial products are sometimes circulated on resale or underground platforms. I am not listing some of the riskier links here for legal reasons, but they can be found if you search carefully.
+	
+# https://www.huzhan.com/
+# https://28xin.com/
+# https://bbs.bcb5.com/
+# https://darkforums.su/
+```
 
-Look for characteristics such as:
+![image-20260528111615305](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260528111615305.png?raw=1)
 
-- footer copyright strings
-- distinctive JavaScript or CSS paths
-- unique API routes
-- page titles and meta tags
-- special login-page images or wording
+![image-20260528112037293](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260528112037293.png?raw=1)
 
-Then search with queries like:
+### 4. Customized or In-House Systems
 
-```text
-"某某科技" OR "Powered by XXX"
+```markdown
+# Practical skills:
+■ After searching the results, click into the repository to view the commit history. Many people have deleted the files after discovering the leak, but the history is still there.
+■ Look at other repositories of this developer. If one person leaks one leak, there is a high probability that there will be other leaks.
+■ Pay attention to the fork's warehouse. The original warehouse has been deleted but the fork is still there.
+```
+
+```markdown
+1. Find website characteristics
+■ Copyright information at the bottom of the page: "Powered by XXX" / "Copyright 2023 XX Technology"
+■ Unique JS/CSS path: /static/js/chunk-2d0a1f3.js
+■ Unique API path:/api/v2/internal/xxx
+■ The system name in the page title or meta tag
+■ Unique copy/image path for login page
+```
+
+```markdown
+2. Search GitHub/grep.app for features
+# Search copyright information
+"XX Technology" OR "Powered by XXX"
+# Search for unique API paths (most effective because the API paths are hard-coded in the code)
 "/api/v2/internal/dashboard"
+# Search for unique JS file names or path structures
 "chunk-2d0a1f3" OR "/static/admin/js/"
-"欢迎使用XX管理平台"
+# Search for unique Chinese copywriting on the page
+"Welcome to XX management platform"
 ```
 
-You can also combine directory scanning with source-code dump techniques to detect `.git`, `.svn`, `.hg`, `.bzr`, `WEB-INF`, backup archives, `.DS_Store`, `.swp`, and configuration files.
+```markdown
+3. Scan directories to find source code leaks
+Directory scanning can sometimes scan source code backups or configuration files that developers have missed, and some configuration files can restore the source code. The principle is to use directory scanning and tool dump source code. You can refer to an article I saw before:
+# https://juejin.cn/post/6950954967435837454
+■ git source code leaked
+■ svn source code leaked
+■ hg source code leaked
+■ Website backup compressed file
+■ WEB-INF/web.xml leaked
+■ DS_Store file leak
+■ SWP file leak
+■ CVS leak
+■ Bzr leaked
 
-### 4.5 Deep-Web Data Leaks
-
-#### 1. IntelX
-
-IntelX aggregates many historical leaks from the deep web and underground forums. Searching company names, domains, or mail domains can reveal exposed credentials and data, especially from third-party suppliers.
-
-```text
-https://intelx.io/
+.git/HEAD
+.git/config
+.git/index
+.git/logs/HEAD
+.git/refs/heads/master
+.git/refs/heads/main
+.git/COMMIT_EDITMSG
+.git/description
+.git/packed-refs
+.svn/entries
+.svn/wc.db
+.svn/all-wcprops
+.svn/props
+.svn/tmp
+.hg/store/00manifest.i
+.hg/store/00changelog.i
+.hg/dirstate
+.hg/requires
+.hg/hgrc
+.bzr/README
+.bzr/branch/last-revision
+.bzr/checkout/dirstate
+.bzr/repository/pack-names
+CVS/Root
+CVS/Entries
+CVS/Repository
+WEB-INF/web.xml
+WEB-INF/classes/application.yml
+WEB-INF/classes/application.properties
+WEB-INF/classes/database.properties
+WEB-INF/classes/config.properties
+WEB-INF/classes/spring-mvc.xml
+WEB-INF/classes/db.properties
+.DS_Store
+.DS_Store?
+._DS_Store
+.index.php.swp
+.config.php.swp
+.database.yml.swp
+.env.swp
+index.php.swp
+config.php.swp
+www.zip
+www.tar.gz
+www.rar
+www.7z
+web.zip
+web.tar.gz
+web.rar
+site.zip
+site.tar.gz
+backup.zip
+backup.tar.gz
+backup.rar
+bak.zip
+bak.tar.gz
+code.zip
+code.tar.gz
+src.zip
+src.tar.gz
+dist.zip
+htdocs.zip
+htdocs.tar.gz
+wwwroot.zip
+wwwroot.tar.gz
+wwwroot.rar
+public.zip
+public.tar.gz
+database.sql
+db.sql
+dump.sql
+data.sql
+backup.sql
+mysql.sql
+.env
+.env.bak
+.env.local
+.env.production
+.env.development
+config.yml
+config.yaml
+config.json
+config.php.bak
+config.inc.php.bak
+database.yml
+application.yml
+application.properties
+settings.py
+wp-config.php.bak
 ```
 
-Suggested keywords:
 
-```text
-app.com.cn
-@app.com.cn
-company-name
+
+## 4.5. Deep Web Leak Intelligence
+
+```markdown
+1. IntelX aggregated search engine
+What makes this platform useful is that it aggregates a large archive of historical leaks from the deep web and underground forums. In many cases, the affected party is a third-party supplier associated with the target, and leaked credentials from those suppliers can still be valuable. The downside is that the platform is expensive.
+
+Search: app.com.cn, @app.com.cn, company name
+# https://intelx.io/
 ```
 
-#### 2. Deep-Web and Underground Markets
+![image-20260528123220419](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260528123220419.png?raw=1)
 
-Useful communities and marketplaces include:
+```markdown
+2. Deep Web
+Search: app.com.cn, @app.com.cn, company name
+# https://darkforums.su/
+# https://pwnforums.st/
+# https://www.demonforums.net/
 
-```text
-https://darkforums.su/
-https://pwnforums.st/
-https://www.demonforums.net/
+3. A network
 xss.is
 KillSec
 darknetarmy
+Chang'an never sleeps city
+Chinese A network trading market
 RansomHouse
 ```
 
-### 4.6 Cloud Storage Bucket Enumeration
+![image-20260528133024298](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260528133024298.png?raw=1)
 
-> [!IMPORTANT]
-> ### BucketHunter is an interactive bucket-name enumeration tool for AWS S3, OSS, COS, and OBS, with AI-assisted result analysis.
+## 4.6. Cloud Storage Bucket Enumeration
 
-Cloud storage buckets on public clouds such as Alibaba Cloud OSS, AWS S3, Tencent COS, and Huawei OBS are often exposed because of permission misconfiguration. Since bucket names are globally unique, enumerating them with company keywords and common suffixes is an effective way to discover forgotten or misconfigured cloud assets.
+```markdown
+Principle: Cloud storage buckets on Alibaba Cloud OSS, AWS S3, Tencent COS, and Huawei OBS are frequently exposed because of access-control mistakes. Bucket names are globally unique, so combining enterprise keywords with common suffixes is an effective way to discover forgotten or misconfigured storage assets.
 
-#### 1. Generate a Bucket Name Dictionary
-
-Extract features from earlier subdomains and company keywords, then generate candidate bucket names. Run `BucketHunter` interactively and choose the first step:
-
-```bash
-./BucketHunter
+# Note: I originally considered explaining the full bucket-enumeration workflow in prose, but it felt more practical to turn the process into a tool and publish it on GitHub for direct use.
+# https://github.com/d0ctorsec/BucketHunter
 ```
 
-Prepare inputs such as:
+```markdown
+1. Generate a bucket name wordlist
+Extract features from the subdomains and enterprise keywords collected in earlier stages, then generate a bucket name wordlist. Launch the interactive terminal, choose the first step for dictionary generation, and fill in the required inputs.
+`./BucketHunter 
 
-- company abbreviations
-- product names
-- project codenames
-- previously collected subdomains
+• Enterprise keywords (company abbreviation, product name, project codename)
+• A list of subdomains collected earlier
+```
 
-#### 2. Multi-Cloud Bucket Scanning
+![image-20260602134401499](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260602134401499.png?raw=1)
 
-The tool calls `S3Scanner` internally to batch-scan generated names across multiple cloud platforms. Because fuzzy matches can introduce false positives, the results should be reviewed with context.
+```markdown
+2. Multi-cloud bucket scanning
+The tool uses the open-source project `S3Scanner` to batch-scan the generated wordlist across multiple cloud providers. In practice, this often turns up buckets with readable objects or unauthorized write permissions. Because fuzzy matches introduce a lot of noise, the results should be reviewed together with other asset context and AI-assisted scoring.
 
-#### 3. AI-Assisted Analysis
+`Select step two in the interactive terminal and start the scan.`
+```
 
-After scanning, AI can be used to analyze and score the results, remove obviously irrelevant buckets, and help prioritize manual verification.
+![image-20260602134738849](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260602134738849.png?raw=1)
 
-## Closing Note
+![image-20260528144231746](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260528144231746.png?raw=1)
 
-This article is designed as a workflow handbook rather than a rigid checklist. In real projects, the best results usually come from combining a few high-signal methods from each stage, continuously cross-validating findings, and manually reviewing noisy data instead of blindly trusting any single platform or tool.
+```markdown
+3. AI-assisted analysis
+`After the second step is complete, AI can analyze the results and remove obviously irrelevant entries. To improve accuracy, provide the required context before starting the analysis. The AI output should still be manually reviewed and verified afterward. In the demonstration, the customer domain is relatively generic, yet the AI can still provide a useful probability-based assessment.`
+```
+
+![image-20260602135222516](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260602135222516.png?raw=1)
+
+![image-20260602135336246](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260602135336246.png?raw=1)
+
+![image-20260528144503357](https://github.com/d0ctorsec/IMG_File1/blob/main/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%BE%B9%E7%BC%98%E8%B5%84%E4%BA%A7%E6%8C%96%E6%8E%98/image-20260528144503357.png?raw=1)
