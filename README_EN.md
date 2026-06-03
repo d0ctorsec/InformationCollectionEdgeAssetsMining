@@ -1,11 +1,4 @@
 
-
-<p>
-  <a href="https://github.com/d0ctorsec/BucketHunter/stargazers"><img src="https://img.shields.io/badge/%E8%A7%89%E5%BE%97%E5%86%99%E7%9A%84%E5%A5%BD%E7%BB%99%E4%B8%AA%E2%98%86Star%E5%92%AF-ff4d8d?style=for-the-badge&logo=github" alt="Thanks for starring"></a>&nbsp;&nbsp;&nbsp;
-  <a href="./README.md"><img src="https://img.shields.io/badge/Chinese-README-blue?style=for-the-badge" alt="Chinese README"></a>&nbsp;&nbsp;&nbsp;
-  <a href="./README_EN.md"><img src="https://img.shields.io/badge/English-README-black?style=for-the-badge" alt="English README"></a>
-</p>
-
 ![InformationCollectionEdgeAssetsMining](https://socialify.git.ci/d0ctorsec/InformationCollectionEdgeAssetsMining/image?forks=1&language=1&name=1&owner=1&stargazers=1&theme=Light)
 
 ```markdown
@@ -18,6 +11,12 @@
 ```
 
 # 0x00. Preface
+
+<p>
+  <a href="https://github.com/d0ctorsec/BucketHunter/stargazers"><img src="https://img.shields.io/badge/%E8%A7%89%E5%BE%97%E5%86%99%E7%9A%84%E5%A5%BD%E7%BB%99%E4%B8%AA%E2%98%86Star%E5%92%AF-ff4d8d?style=for-the-badge&logo=github" alt="Thanks for starring"></a>&nbsp;&nbsp;&nbsp;
+  <a href="./README.md"><img src="https://img.shields.io/badge/Chinese-README-blue?style=for-the-badge" alt="Chinese README"></a>&nbsp;&nbsp;&nbsp;
+  <a href="./README_EN.md"><img src="https://img.shields.io/badge/English-README-black?style=for-the-badge" alt="English README"></a>
+</p>
 
 **Before You Begin: I recently worked on a pre-sales project where the client wanted a workflow capable of uncovering hidden assets. Traditional information gathering usually requires cross-validating many platforms and tools, while notes and utilities tend to be scattered across different modules, which makes the process extremely inefficient. So I decided to reorganize the overall asset-discovery workflow into a single comprehensive article, remove repetitive or outdated methods, and build a practical end-to-end collection chain. This article is compiled from my previous notes and experience. If you notice anything inaccurate, feel free to point it out. Since the article has many heading levels, readers who prefer a better reading experience can download the [Markdown version](https://github.com/d0ctorsec/InformationCollectionEdgeAssetsMining).**
 

@@ -1,10 +1,4 @@
 
-<p>
-  <a href="https://github.com/d0ctorsec/BucketHunter/stargazers"><img src="https://img.shields.io/badge/%E8%A7%89%E5%BE%97%E5%86%99%E7%9A%84%E5%A5%BD%E7%BB%99%E4%B8%AA%E2%98%86Star%E5%92%AF-ff4d8d?style=for-the-badge&logo=github" alt="Thanks for starring"></a>&nbsp;&nbsp;&nbsp;
-  <a href="./README.md"><img src="https://img.shields.io/badge/%E4%B8%AD%E6%96%87-README-blue?style=for-the-badge" alt="Chinese README"></a>&nbsp;&nbsp;&nbsp;
-  <a href="./README_EN.md"><img src="https://img.shields.io/badge/English-README-black?style=for-the-badge" alt="English README"></a>
-</p>
-
 ![InformationCollectionEdgeAssetsMining](https://socialify.git.ci/d0ctorsec/InformationCollectionEdgeAssetsMining/image?forks=1&language=1&name=1&owner=1&stargazers=1&theme=Light)
 
 
@@ -18,6 +12,12 @@
 ```
 
 # 0x00.前言
+
+<p>
+  <a href="https://github.com/d0ctorsec/BucketHunter/stargazers"><img src="https://img.shields.io/badge/%E8%A7%89%E5%BE%97%E5%86%99%E7%9A%84%E5%A5%BD%E7%BB%99%E4%B8%AA%E2%98%86Star%E5%92%AF-ff4d8d?style=for-the-badge&logo=github" alt="Thanks for starring"></a>&nbsp;&nbsp;&nbsp;
+  <a href="./README.md"><img src="https://img.shields.io/badge/%E4%B8%AD%E6%96%87-README-blue?style=for-the-badge" alt="Chinese README"></a>&nbsp;&nbsp;&nbsp;
+  <a href="./README_EN.md"><img src="https://img.shields.io/badge/English-README-black?style=for-the-badge" alt="English README"></a>
+</p>
 
 **写在前面：最近有个售前项目，客户要求要能够收集到隐蔽的资产，因为以往信息收集要用到很多平台与工具交叉验证，记了很多笔记和工具都是分散在各个模块，效率极低，所以干脆就把整体的资产收集思路整理成一篇总和文章，剔除一些重复和淘汰的方法，设计一套实战收集链路。这篇文章是基于以往的笔记整理而来，如果有不对的地方请佬们提点一下。文章目录层级比较多感兴趣的佬可以下载[MarkDown](https://github.com/d0ctorsec/InformationCollectionEdgeAssetsMining)阅读。**
 
