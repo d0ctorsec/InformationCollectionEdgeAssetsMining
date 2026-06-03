@@ -1,7 +1,7 @@
 
 
 <p>
-  <a href="https://github.com/d0ctorsec/BucketHunter/stargazers"><img src="https://img.shields.io/badge/Thanks%20for%20a%20Star-ff4d8d?style=for-the-badge&logo=github" alt="Thanks for starring"></a>&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/d0ctorsec/BucketHunter/stargazers"><img src="https://img.shields.io/badge/%E8%A7%89%E5%BE%97%E5%86%99%E7%9A%84%E5%A5%BD%E7%BB%99%E4%B8%AA%E2%98%86Star%E5%92%AF-ff4d8d?style=for-the-badge&logo=github" alt="Thanks for starring"></a>&nbsp;&nbsp;&nbsp;
   <a href="./README.md"><img src="https://img.shields.io/badge/Chinese-README-blue?style=for-the-badge" alt="Chinese README"></a>&nbsp;&nbsp;&nbsp;
   <a href="./README_EN.md"><img src="https://img.shields.io/badge/English-README-black?style=for-the-badge" alt="English README"></a>
 </p>
@@ -19,9 +19,7 @@
 
 # 0x00. Preface
 
-```markdown
-During a recent pre-sales engagement, the client asked for a workflow that could surface hidden external assets. Traditional reconnaissance usually requires cross-checking across many platforms and tools, while notes, screenshots, and utilities are often scattered across different modules. That makes the process inefficient. This article consolidates those fragmented methods into a single practical workflow, removes repetitive or outdated techniques, and organizes them into an end-to-end playbook. It is based on my past notes and field experience, so feel free to point out anything that could be improved.
-```
+**Before You Begin: I recently worked on a pre-sales project where the client wanted a workflow capable of uncovering hidden assets. Traditional information gathering usually requires cross-validating many platforms and tools, while notes and utilities tend to be scattered across different modules, which makes the process extremely inefficient. So I decided to reorganize the overall asset-discovery workflow into a single comprehensive article, remove repetitive or outdated methods, and build a practical end-to-end collection chain. This article is compiled from my previous notes and experience. If you notice anything inaccurate, feel free to point it out. Since the article has many heading levels, readers who prefer a better reading experience can download the [Markdown version](https://github.com/d0ctorsec/InformationCollectionEdgeAssetsMining).**
 
 ```markdown
 `The workflow in this article is already ordered by priority. Earlier subsections are generally the more recommended options. In most modules, choosing one or two effective methods is enough. Unless the target is especially important, it is usually unnecessary to use every single technique because doing so is very time-consuming.
