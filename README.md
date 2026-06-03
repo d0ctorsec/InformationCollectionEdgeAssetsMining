@@ -1,3 +1,4 @@
+![InformationCollectionEdgeAssetsMining](https://socialify.git.ci/d0ctorsec/InformationCollectionEdgeAssetsMining/image?forks=1&language=1&name=1&owner=1&stargazers=1&theme=Light)
 <p>
   <a href="https://github.com/d0ctorsec/BucketHunter/stargazers"><img src="https://img.shields.io/badge/%E6%84%9F%E8%B0%A2%E7%82%B9%E4%B8%AA%E2%98%86Star%E5%92%AF-ff4d8d?style=for-the-badge&logo=github" alt="Thanks for starring"></a>
   <a href="./README.md"><img src="https://img.shields.io/badge/%E4%B8%AD%E6%96%87-README-blue?style=for-the-badge" alt="Chinese README"></a>
